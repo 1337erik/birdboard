@@ -11,7 +11,7 @@ class ProjectsController extends Controller
     public function index()
     {
 
-        $projects = Project::all();
+        $projects = auth()->user()->projects;
 
         return view( 'projects.index', compact( 'projects' ) );
     }
@@ -26,10 +26,26 @@ class ProjectsController extends Controller
             'description' => 'required'
         ]);
 
+        // $attributes[ 'owner_id' ] = auth()->id();
+
         // persist the data
-        Project::create( $attributes );
+        auth()->user()->projects()->create( $attributes );
+        // Project::create( $attributes );
 
         // redirect
         return redirect( '/projects' );
+    }
+
+    public function show( Project $project )
+    {
+
+        // $project = Project::findOrFail( request( 'project' ) );
+        // this is not necessary now that we have 'binded' the model and route above via the passed argument ( passed from the route in web.php )
+        if( auth()->id()->isNot( $project->owner ) ){
+
+            abort( 403 );
+        }
+
+        return view( 'projects.show', compact( 'project' ) );
     }
 }

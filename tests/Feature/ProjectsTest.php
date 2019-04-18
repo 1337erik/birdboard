@@ -23,6 +23,7 @@ class ProjectsTest extends TestCase
     {
 
         $this->withoutExceptionHandling();
+        $this->actingAs( factory( 'App\User' )->create() );
 
         $attributes = [
 
@@ -54,7 +55,9 @@ class ProjectsTest extends TestCase
     public function a_project_requires_a_title()
     {
 
+        $this->actingAs( factory( 'App\User' )->create() );
         $attributes = factory( 'App\Project' )->raw([ 'title' => '' ]);
+        // 'raw' will return an array, where 'make' returns an 'Eloquent Object'
 
         $this->post( '/projects', $attributes )->assertSessionHasErrors( 'title' );
     }
@@ -67,10 +70,86 @@ class ProjectsTest extends TestCase
     public function a_project_requires_a_description()
     {
 
+        $this->actingAs( factory( 'App\User' )->create() );
         $attributes = factory( 'App\Project' )->raw([ 'description' => '' ]);
         // $attributes = factory( 'App\Project' )->make([ 'description' => '' ]);
         // the difference being that 'raw' will return an array, where 'make' returns an 'Eloquent Object'
 
         $this->post( '/projects', $attributes )->assertSessionHasErrors( 'description' );
+    }
+
+    /**
+     * @test
+     * 
+     * this follow the same logic as the above test
+     */
+    public function guests_cannot_create_projects()
+    {
+
+        // $this->withoutExceptionHandling();
+
+        $attributes = factory( 'App\Project' )->raw();
+
+        $this->post( '/projects', $attributes )->assertRedirect( 'login' );
+    }
+
+    /**
+     * @test
+     * 
+     * this follow the same logic as the above test
+     */
+    public function guests_cannot_view_projects()
+    {
+
+        // $this->withoutExceptionHandling();
+
+        $this->get( '/projects' )->assertRedirect( 'login' );
+    }
+
+    /**
+     * @test
+     * 
+     * this follow the same logic as the above test
+     */
+    public function guests_cannot_view_a_single_project()
+    {
+
+        // $this->withoutExceptionHandling();
+        $project = factory( 'App\Project' )->create();
+
+        $this->get( $project->path() )->assertRedirect( 'login' );
+    }
+
+
+    /**
+     * @test
+     */
+    public function a_user_can_view_their_project()
+    {
+
+        $this->withoutExceptionHandling();
+        $this->actingAs( factory( 'App\User' )->create() );
+
+        // given a project..
+        $project = factory( 'App\Project' )->create([ 'owner_id' => auth()->id() ]);
+
+        $this->get( $project->path() )
+            ->assertSee( $project->title )
+            ->assertSee( $project->description );
+    }
+
+    /**
+     * @test
+     */
+    public function an_authenticated_user_cannot_view_the_projects_of_others()
+    {
+
+        // $this->withoutExceptionHandling();
+        $this->actingAs( factory( 'App\User' )->create() );
+
+        // given a project..
+        $project = factory( 'App\Project' )->create();
+
+        $this->get( $project->path() )->assertStatus( 403 );
     }
 }
