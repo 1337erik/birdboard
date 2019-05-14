@@ -2,19 +2,31 @@
 
 @tailwind components;
 
-@tailwind utilities;
-
 // Fonts
 @import url('https://fonts.googleapis.com/css?family=Nunito');
 
 // Variables
-@import 'variables';
+// @import 'variables';
 
 // Bootstrap
-@import '~bootstrap/scss/bootstrap';
+// @import '~bootstrap/scss/bootstrap';
 
-.navbar-laravel {
+@tailwind utilities; // so it will override bootstrap classes, like .shadow
+// keeping things commented out for reference.. as this is a demo repo anyways
 
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+// .navbar-laravel {
+
+//   background-color: #fff;
+//   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+// }
+
+// custom components & utilities below
+.button {
+
+  @apply .bg-blue-500 .text-white .py-2 .px-5 .rounded-lg .shadow .text-sm;
+}
+
+.card {
+
+  @apply rounded-lg shadow bg-white p-5;
 }

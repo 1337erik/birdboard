@@ -31,4 +31,4 @@ mix.js( 'resources/js/app.js', 'public/js' )
          }
      }
    })
-   // laracasts teaches an <1 version of tailwind, jeffrey's plugin may be inept now
+   // laracasts teaches an <1 version of tailwind, jeffrey's plugin is inept now

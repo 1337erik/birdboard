@@ -2,22 +2,23 @@
 
 @section( 'content' )
 
-    <div class="flex items-center justify-between mb-3">
+    <header class="flex items-end justify-between mb-3 py-4">
 
-        <h3>Fucking Birds</h3>
-        <a href="/projects/create">New Project</a>
-    </div>
-    <ul>
+        <h2 class="text-gray-500 text-sm font-normal">My Projects</h2>
+        <a class="button" href="/projects/create">New Project</a>
+    </header>
+
+    <main class="md:flex md:flex-wrap -mx-3">
 
         @forelse( $projects as $project )
 
-            <li>
+            <div class="md:w-1/2 lg:w-1/3 px-3 pb-6">
 
-                <a href="{{ $project->path() }}">{{ $project->title }}</a>
-            </li>
+                @include( 'projects.card' )
+            </div>
         @empty
 
-            <li>No projects yet..</li>
+            <p>No projects yet..</p>
         @endforelse
-    </ul>
+    </main>
 @endsection
