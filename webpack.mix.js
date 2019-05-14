@@ -1,4 +1,7 @@
-const mix = require('laravel-mix');
+let mix = require('laravel-mix');
+
+// require( 'laravel-mix-tailwind' );
+let tailwindcss = require( 'tailwindcss' );
 
 /*
  |--------------------------------------------------------------------------
@@ -11,5 +14,21 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.js('resources/js/app.js', 'public/js')
-   .sass('resources/sass/app.scss', 'public/css');
+mix.js( 'resources/js/app.js', 'public/js' )
+   .sass( 'resources/sass/app.scss', 'public/css' )
+   .options({
+
+      processCssUrls: false,
+      postCss: [ tailwindcss( './tailwind.config.js' ) ],
+      autoprefixer: {
+
+         options: {
+
+            browsers: [
+
+               'last 6 versions',
+            ]
+         }
+     }
+   })
+   // laracasts teaches an <1 version of tailwind, jeffrey's plugin may be inept now
