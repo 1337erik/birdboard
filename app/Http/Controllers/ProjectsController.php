@@ -41,11 +41,17 @@ class ProjectsController extends Controller
 
         // $project = Project::findOrFail( request( 'project' ) );
         // this is not necessary now that we have 'binded' the model and route above via the passed argument ( passed from the route in web.php )
-        if( auth()->id()->isNot( $project->owner ) ){
+        if( auth()->user()->isNot( $project->owner ) ){
 
             abort( 403 );
         }
 
         return view( 'projects.show', compact( 'project' ) );
+    }
+
+    public function create( Project $project )
+    {
+
+        return view( 'projects.create' );
     }
 }

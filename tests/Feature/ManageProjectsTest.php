@@ -6,7 +6,7 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class ProjectsTest extends TestCase
+class ManageProjectsTest extends TestCase
 {
 
     use WithFaker, RefreshDatabase;
@@ -24,6 +24,8 @@ class ProjectsTest extends TestCase
 
         $this->withoutExceptionHandling();
         $this->actingAs( factory( 'App\User' )->create() );
+
+        $this->get( 'projects/create' )->assertStatus( 200 );
 
         $attributes = [
 
@@ -81,45 +83,23 @@ class ProjectsTest extends TestCase
     /**
      * @test
      * 
-     * this follow the same logic as the above test
+     * this test used to be 3 separate tests, but jeffrey shows how most functionality can be concatenated into one test
+     * for the purpose of brevity and efficiency and readability
      */
-    public function guests_cannot_create_projects()
+    public function guests_cannot_manage_projects()
     {
 
         // $this->withoutExceptionHandling();
 
-        $attributes = factory( 'App\Project' )->raw();
-
-        $this->post( '/projects', $attributes )->assertRedirect( 'login' );
-    }
-
-    /**
-     * @test
-     * 
-     * this follow the same logic as the above test
-     */
-    public function guests_cannot_view_projects()
-    {
-
-        // $this->withoutExceptionHandling();
-
-        $this->get( '/projects' )->assertRedirect( 'login' );
-    }
-
-    /**
-     * @test
-     * 
-     * this follow the same logic as the above test
-     */
-    public function guests_cannot_view_a_single_project()
-    {
-
-        // $this->withoutExceptionHandling();
         $project = factory( 'App\Project' )->create();
 
+        // toArray() is a great functio nto convert an Eloquent object into an array! remember this!
+        $this->post( '/projects', $project->toArray() )->assertRedirect( 'login' );
+        $this->get( 'projects/create' )->assertRedirect( 'login' );
+        $this->get( '/projects' )->assertRedirect( 'login' );
         $this->get( $project->path() )->assertRedirect( 'login' );
-    }
 
+    }
 
     /**
      * @test
