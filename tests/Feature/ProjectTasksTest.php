@@ -122,4 +122,61 @@ class ProjectTasksTest extends TestCase
         $this->get( $project->path() )
             ->assertSee( 'lorem ipsum' );
     }
+
+    /**
+     * @test
+     */
+    public function a_task_can_be_updated()
+    {
+
+        $this->withoutExceptionHandling();
+        $this->signIn();
+
+        $project = auth()->user()->projects()->create(
+
+            factory( Project::class )->raw()
+        );
+
+        $task = $project->addTask( 'test task' );
+
+        $attributes = [
+
+            'body'      => 'changed',
+            'completed' => true
+        ];
+
+        $this->patch( $task->path(), $attributes );
+
+        $this->assertDatabaseHas( 'tasks', $attributes );
+    }
+
+    /**
+     * @test
+     * 
+     * I was initially confused why I wouldn't just add this to the above test..
+     * I'll explain why thats incorrect thinking here for educational reasons..
+     * 
+     * This test specifically checks for whether or not the update is being done by you or even a guest user,
+     * being logged in is actually insignificant on its own.
+     */
+    public function only_the_owner_of_a_project_may_update_tasks()
+    {
+
+        $this->signIn();
+
+        $project = factory( 'App\Project' )->create();
+
+        $task = $project->addTask( 'test task' );
+
+        $attributes = [
+
+            'body'      => 'changed',
+            'completed' => true
+        ];
+
+        $this->patch( $task->path(), $attributes )
+            ->assertStatus( 403 );
+
+        $this->assertDatabaseMissing( 'tasks', $attributes );
+    }
 }

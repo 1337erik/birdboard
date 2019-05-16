@@ -25,7 +25,16 @@
 
                         <div class="card mb-3">
 
-                            {{ $task->body }}
+                            <form method="post" action="{{ $task->path() }}">
+                                @method( 'PATCH' )
+                                @csrf
+
+                                <div class="flex">
+
+                                    <input class="w-full {{ $task->completed ? 'text-gray-500' : '' }}" type="text" name="body" value="{{ $task->body }}" />
+                                    <input type="checkbox" name="completed" {{ $task->completed ? 'checked' : '' }} onChange=" this.form.submit() " />
+                                </div>
+                            </form>
                         </div>
                     @empty
 
@@ -39,7 +48,8 @@
                         <form action="{{ $project->path() . '/tasks' }}" method="post">
                             @csrf
 
-                        <input class="w-full" type="text" placeholder="Add New task.." name="body" />
+                            <input class="w-full" type="text" placeholder="Add New task.." name="body" />
+                        </form>
                     </div>
                 </div>
                 <div>
