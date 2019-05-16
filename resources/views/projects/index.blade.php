@@ -18,7 +18,10 @@
             </div>
         @empty
 
-            <p>No projects yet..</p>
+            <div class="md:w-1/2 lg:w-1/3 px-3 pb-6">
+
+                <p>No projects yet..</p>
+            </div>
         @endforelse
     </main>
 @endsection

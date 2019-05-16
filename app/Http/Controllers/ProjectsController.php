@@ -11,7 +11,7 @@ class ProjectsController extends Controller
     public function index()
     {
 
-        $projects = auth()->user()->projects;
+        $projects = auth()->user()->projects()->orderBy( 'updated_at', 'desc' )->get();
 
         return view( 'projects.index', compact( 'projects' ) );
     }
@@ -23,7 +23,8 @@ class ProjectsController extends Controller
         $attributes = request()->validate([
 
             'title'       => 'required',
-            'description' => 'required'
+            'description' => 'required',
+            'notes'       => 'min:3'
         ]);
 
         // $attributes[ 'owner_id' ] = auth()->id();
@@ -36,15 +37,27 @@ class ProjectsController extends Controller
         return redirect( $project->path() );
     }
 
+    public function update( Project $project )
+    {
+
+        // if( auth()->user()->isNot( $project->owner ) ) abort( 403 );
+        $this->authorize( 'update', $project );
+
+        $project->update([
+
+            'notes' => request( 'notes' )
+        ]);
+
+        return redirect( $project->path() );
+    }
+
     public function show( Project $project )
     {
 
         // $project = Project::findOrFail( request( 'project' ) );
         // this is not necessary now that we have 'binded' the model and route above via the passed argument ( passed from the route in web.php )
-        if( auth()->user()->isNot( $project->owner ) ){
-
-            abort( 403 );
-        }
+        // if( auth()->user()->isNot( $project->owner ) )abort( 403 );
+        $this->authorize( 'update', $project );
 
         return view( 'projects.show', compact( 'project' ) );
     }
