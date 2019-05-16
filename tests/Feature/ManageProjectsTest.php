@@ -23,7 +23,8 @@ class ManageProjectsTest extends TestCase
     {
 
         $this->withoutExceptionHandling();
-        $this->actingAs( factory( 'App\User' )->create() );
+        // $this->actingAs( factory( 'App\User' )->create() );
+        $this->signIn(); // abstracted in testCase for easy test auth
 
         $this->get( 'projects/create' )->assertStatus( 200 );
 
@@ -57,7 +58,7 @@ class ManageProjectsTest extends TestCase
     public function a_project_requires_a_title()
     {
 
-        $this->actingAs( factory( 'App\User' )->create() );
+        $this->signIn();
         $attributes = factory( 'App\Project' )->raw([ 'title' => '' ]);
         // 'raw' will return an array, where 'make' returns an 'Eloquent Object'
 
@@ -72,7 +73,7 @@ class ManageProjectsTest extends TestCase
     public function a_project_requires_a_description()
     {
 
-        $this->actingAs( factory( 'App\User' )->create() );
+        $this->signIn();
         $attributes = factory( 'App\Project' )->raw([ 'description' => '' ]);
         // $attributes = factory( 'App\Project' )->make([ 'description' => '' ]);
         // the difference being that 'raw' will return an array, where 'make' returns an 'Eloquent Object'
@@ -108,14 +109,14 @@ class ManageProjectsTest extends TestCase
     {
 
         $this->withoutExceptionHandling();
-        $this->actingAs( factory( 'App\User' )->create() );
+        $this->signIn();
 
         // given a project..
         $project = factory( 'App\Project' )->create([ 'owner_id' => auth()->id() ]);
 
         $this->get( $project->path() )
             ->assertSee( $project->title )
-            ->assertSee( $project->description );
+            ->assertSee( str_limit( $project->description, 100 ) );
     }
 
     /**
@@ -125,7 +126,7 @@ class ManageProjectsTest extends TestCase
     {
 
         // $this->withoutExceptionHandling();
-        $this->actingAs( factory( 'App\User' )->create() );
+        $this->signIn();
 
         // given a project..
         $project = factory( 'App\Project' )->create();

@@ -21,21 +21,25 @@
 
                     <h2 class="text-lg text-gray-500 font-normal mb-3">Tasks</h2>
                     {{-- task list goes here when rdy --}}
-                    <div class="card mb-3">
+                    @forelse ( $project->tasks as $task )
 
-                        Lorem Ipsum
-                    </div>
-                    <div class="card mb-3">
+                        <div class="card mb-3">
 
-                        Lorem Ipsum
-                    </div>
-                    <div class="card mb-3">
+                            {{ $task->body }}
+                        </div>
+                    @empty
 
-                        Lorem Ipsum
-                    </div>
+                        <div class="card mb-3 text-gray-500">
+
+                            No Tasks!
+                        </div>
+                    @endforelse
                     <div class="card">
 
-                        Lorem Ipsum
+                        <form action="{{ $project->path() . '/tasks' }}" method="post">
+                            @csrf
+
+                        <input class="w-full" type="text" placeholder="Add New task.." name="body" />
                     </div>
                 </div>
                 <div>
