@@ -7,7 +7,14 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Project;
 use App\Task;
+use Facades\Tests\Setup\ProjectFactory;
 
+/**
+ * This test file displays a few really cool concepts:
+ *  - my own customn array-driven factory for testing model required fields ( line 22 - 66 )
+ *  - test factory class ( & facade ), with many examples of different ways to use it
+ *  - a few examples of alternative approaches to acheiving the same results ( see commented code within functions )
+ */
 class ProjectTasksTest extends TestCase
 {
 
@@ -27,7 +34,7 @@ class ProjectTasksTest extends TestCase
     /**
      * @test
      * 
-     * this is adapted from Jeffrey's episode 12, asically instead of
+     * this is adapted from Jeffrey's episode 12, basically instead of
      * creating individual functions to test whether an entity is
      * properly requiring some field, I abstracted away a factory
      * function that will read from a list of required fields..
@@ -82,8 +89,15 @@ class ProjectTasksTest extends TestCase
     {
 
         $this->signIn();
-
         $project = factory( 'App\Project' )->create();
+
+        /**
+         * the test factory could be used here, however the point of this test
+         * is to show how an authenticated use must OWN a project to add tasks to it
+         * so that beign said the $this->signIn() would still exist outside of the test factory
+         * effectively only concatenating one line.. into one line..
+         */
+        // $project = ProjectFactory::create();
 
         $this->post( $project->path() . '/tasks', [ 'body' => 'test task' ] )
             ->assertStatus( 403 );
@@ -104,15 +118,18 @@ class ProjectTasksTest extends TestCase
     {
 
         $this->withoutExceptionHandling();
-        $this->signIn();
+        // $this->signIn();
 
         // this creates the task through the project member function
         // $project = factory( Project::class )->create( [ 'owner_id' => auth()->id() ] );
 
         // this creates the task through the entity relationship of the authenticated user
-        $project = auth()->user()->projects()->create(
-            factory( Project::class )->raw()
-        );
+        // $project = auth()->user()->projects()->create(
+        //     factory( Project::class )->raw()
+        // );
+
+        // this is the combined approach using the new test factory facade
+        $project = ProjectFactory::ownedBy( $this->signIn() )->create();
 
         // first, that the project's member function 'addTask' works
         // via testing the 'post' route and controller functions and member function
@@ -130,14 +147,10 @@ class ProjectTasksTest extends TestCase
     {
 
         $this->withoutExceptionHandling();
-        $this->signIn();
 
-        $project = auth()->user()->projects()->create(
-
-            factory( Project::class )->raw()
-        );
-
-        $task = $project->addTask( 'test task' );
+        // The first line here is displaying the usage of the test factory class NOT as a Laravel Facade
+        // $project = app( ProjectFactory::class )->ownedBy( $this->signIn() )->withTasks( 1 )->create();
+        $project = ProjectFactory::withTasks( 1 )->create();
 
         $attributes = [
 
@@ -145,7 +158,8 @@ class ProjectTasksTest extends TestCase
             'completed' => true
         ];
 
-        $this->patch( $task->path(), $attributes );
+        // this is another way of doing things as the authenticated user, instead of calling 'ownedBy' on the factory
+        $this->actingAs( $project->owner )->patch( $project->tasks[ 0 ]->path(), $attributes );
 
         $this->assertDatabaseHas( 'tasks', $attributes );
     }
