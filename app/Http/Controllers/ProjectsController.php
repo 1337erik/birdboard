@@ -43,12 +43,22 @@ class ProjectsController extends Controller
         // if( auth()->user()->isNot( $project->owner ) ) abort( 403 );
         $this->authorize( 'update', $project );
 
-        $project->update([
+        $attributes = request()->validate([
 
-            'notes' => request( 'notes' )
+            'notes'       => 'max: 255',
+            'title'       => 'required',
+            'description' => 'required'
         ]);
 
+        $project->update( $attributes );
+
         return redirect( $project->path() );
+    }
+
+    public function edit( Project $project )
+    {
+
+        return view( 'projects.edit', compact( 'project' ) );
     }
 
     public function show( Project $project )

@@ -64,12 +64,18 @@ class ManageProjectsTest extends TestCase
             'owner_id' => auth()->id()
         ]);
 
-        $this->patch( $project->path(), [
+        $attributes = [
 
-            'notes' => 'no longer the same'
-        ])->assertRedirect( $project->path() );
+            'notes'       => 'no longer the same notes..',
+            'title'       => 'Pie Garden',
+            'description' => 'this is a random description not meant to mean anything'
+        ];
 
-        $this->assertDatabaseHas( 'projects', [ 'notes' => 'no longer the same' ] );
+        $this->patch( $project->path(), $attributes )->assertRedirect( $project->path() );
+
+        $this->get( $project->path() . '/edit' )->assertOk();
+
+        $this->assertDatabaseHas( 'projects', $attributes );
     }
 
     /**
@@ -130,6 +136,7 @@ class ManageProjectsTest extends TestCase
         $this->get( 'projects/create' )->assertRedirect( 'login' );
         $this->get( '/projects' )->assertRedirect( 'login' );
         $this->get( $project->path() )->assertRedirect( 'login' );
+        $this->get( $project->path() . '/edit' )->assertRedirect( 'login' );
 
     }
 
