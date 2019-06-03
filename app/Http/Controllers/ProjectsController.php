@@ -46,8 +46,8 @@ class ProjectsController extends Controller
         $attributes = request()->validate([
 
             'notes'       => 'max: 255',
-            'title'       => 'required',
-            'description' => 'required'
+            'title'       => 'sometimes | required',
+            'description' => 'sometimes | required'
         ]);
 
         $project->update( $attributes );

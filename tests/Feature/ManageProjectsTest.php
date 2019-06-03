@@ -6,6 +6,7 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Project;
+use Facades\Tests\Setup\ProjectFactory;
 
 class ManageProjectsTest extends TestCase
 {
@@ -52,6 +53,9 @@ class ManageProjectsTest extends TestCase
 
     /**
     * @test
+    * 
+    * this method does not utilize the ProjectFactory class, the method below does..
+    * showcasing the exact same functionality done with/without a Factory class
     */
     public function a_user_can_update_a_project()
     {
@@ -76,6 +80,27 @@ class ManageProjectsTest extends TestCase
         $this->get( $project->path() . '/edit' )->assertOk();
 
         $this->assertDatabaseHas( 'projects', $attributes );
+    }
+
+    /**
+    * @test
+    *
+    * same function as above but with a Test Factory class
+    */
+    public function a_user_can_update_a_projects_general_notes()
+    {
+
+        $this->withoutExceptionHandling();
+
+        $project = ProjectFactory::create();
+
+        $this->actingAs( $project->owner )
+            ->patch( $project->path(), [ 'notes' => 'no longer the same notes..' ] )->assertRedirect( $project->path() );
+
+
+        $this->get( $project->path() . '/edit' )->assertOk();
+
+        $this->assertDatabaseHas( 'projects', [ 'notes' => 'no longer the same notes..' ] );
     }
 
     /**

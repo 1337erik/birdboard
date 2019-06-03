@@ -33,15 +33,6 @@ class ProjectTasksTest extends TestCase
 
     /**
      * @test
-     * 
-     * this is adapted from Jeffrey's episode 12, basically instead of
-     * creating individual functions to test whether an entity is
-     * properly requiring some field, I abstracted away a factory
-     * function that will read from a list of required fields..
-     * 
-     * then updated it to perform the same test for another entity
-     * 
-     * could probably even read from the Model itself.. I'll check later
      */
     public function test_entity_required_fields()
     {
@@ -61,7 +52,7 @@ class ProjectTasksTest extends TestCase
         );
         foreach( $this->taskRequirements as $attribute ){
 
-            $attributes = factory( 'App\Task' )->raw([ $attribute => '' ]);
+            $attributes = factory( 'App\Task' )->raw([ $attribute => '', 'project_id' => $project->id ]);
             $this->post( $project->path() . '/tasks', $attributes )->assertSessionHasErrors( $attribute );
         }
     }
@@ -154,6 +145,29 @@ class ProjectTasksTest extends TestCase
 
         $attributes = [
 
+            'body'      => 'changed'
+        ];
+
+        // this is another way of doing things as the authenticated user, instead of calling 'ownedBy' on the factory
+        $this->actingAs( $project->owner )->patch( $project->tasks[ 0 ]->path(), $attributes );
+
+        $this->assertDatabaseHas( 'tasks', $attributes );
+    }
+
+    /**
+     * @test
+     */
+    public function a_task_can_be_completed()
+    {
+ 
+        $this->withoutExceptionHandling();
+
+        // The first line here is displaying the usage of the test factory class NOT as a Laravel Facade
+        // $project = app( ProjectFactory::class )->ownedBy( $this->signIn() )->withTasks( 1 )->create();
+        $project = ProjectFactory::withTasks( 1 )->create();
+
+        $attributes = [
+
             'body'      => 'changed',
             'completed' => true
         ];
@@ -162,6 +176,25 @@ class ProjectTasksTest extends TestCase
         $this->actingAs( $project->owner )->patch( $project->tasks[ 0 ]->path(), $attributes );
 
         $this->assertDatabaseHas( 'tasks', $attributes );
+    }
+
+    /**
+     * @test
+     */
+    public function a_task_can_be_marked_incomplete()
+    {
+
+        $this->withoutExceptionHandling();
+
+        // The first line here is displaying the usage of the test factory class NOT as a Laravel Facade
+        // $project = app( ProjectFactory::class )->ownedBy( $this->signIn() )->withTasks( 1 )->create();
+        $project = ProjectFactory::withTasks( 1 )->create();
+
+        // this is another way of doing things as the authenticated user, instead of calling 'ownedBy' on the factory
+        $this->actingAs( $project->owner )->patch( $project->tasks[ 0 ]->path(), [ 'body' => 'changed', 'completed' => true ] );
+        $this->patch( $project->tasks[ 0 ]->path(), [ 'body' => 'changed', 'completed' => false ]);
+
+        $this->assertDatabaseHas( 'tasks', [ 'body' => 'changed', 'completed' => false ] );
     }
 
     /**

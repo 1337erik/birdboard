@@ -22,7 +22,7 @@ class ProjectTasksController extends Controller
 
         $project->addTask( request( 'body' ) );
 
-        return redirect( $project->path() );
+        return redirect( $project->path() ); 
     }
 
     public function update( Project $project, Task $task )
@@ -37,9 +37,11 @@ class ProjectTasksController extends Controller
 
         $task->update([
 
-            'body'      => request( 'body' ),
-            'completed' => request()->has( 'completed' )
+            'body' => request( 'body' ),
         ]);
+
+        if( request( 'completed' ) ) $task->complete();
+        else $task->incomplete();
 
         return redirect( $project->path() );
     }

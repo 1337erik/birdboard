@@ -14,6 +14,18 @@ class Project extends Model
         return "/projects/{$this->id}";
     }
 
+    public function activity()
+    {
+
+        return $this->hasMany( Activity::class );
+    }
+
+    public function recordActivity( $description )
+    {
+
+        $this->activity()->create([ 'description' => $description ]);
+    }
+ 
     public function owner()
     {
 
