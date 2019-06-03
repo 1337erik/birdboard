@@ -69,4 +69,48 @@ class ActivityFeedTest extends TestCase
         $this->assertCount( 3, $project->activity );
         $this->assertEquals( $project->activity->last()->description, 'completed_task' );
     }
+
+    /**
+    * @test
+    */
+    public function incompleting_a_new_task_records_project_activity()
+    {
+
+        $project = ProjectFactory::withTasks( 1 )->create();
+
+        $this->actingAs( $project->owner )
+            ->patch( $project->tasks[ 0 ]->path(), [
+
+            'body' => 'foobar',
+            'completed' => true
+        ]);
+
+        $this->assertCount( 3, $project->activity );
+
+        $this->actingAs( $project->owner )
+            ->patch( $project->tasks[ 0 ]->path(), [
+
+            'body' => 'foobar',
+            'completed' => false
+        ]);
+
+        // note the difference here, grabbing a 'fresh' copy from the database
+        // could call: $project->refresh();
+
+        $this->assertCount( 4, $project->fresh()->activity );
+        $this->assertEquals( $project->fresh()->activity->last()->description, 'incompleted_task' );
+    }
+
+    /**
+    * @test
+    */
+    public function deleting_a_task()
+    {
+
+        $project = ProjectFactory::withTasks( 1 )->create();
+
+        $project->tasks[ 0 ]->delete();
+
+        $this->assertcount( 3, $project->activity );
+    }
 }
