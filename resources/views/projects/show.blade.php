@@ -65,11 +65,22 @@
                     </form>
                 </div>
             </div>
-            <div class="md:w-1/4 px-3">
+            <div class="md:w-1/4 px-3 md:py-8">
 
-                <div>
+                @include( 'projects.card' )
 
-                    @include( 'projects.card' )
+                <div class="card mt-3">
+
+                    <ul class="list-reset text-xs">
+
+                        @foreach( $project->activity as $activity )
+
+                            <li class="{{ $loop->last ? '' : 'mb-1' }}">
+
+                                @include( "projects.activity.{$activity->description}" )
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
             </div>
         </div>

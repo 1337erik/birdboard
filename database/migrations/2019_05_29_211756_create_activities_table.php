@@ -13,9 +13,16 @@ class CreateActivitiesTable extends Migration
      */
     public function up()
     {
-        Schema::create('activities', function (Blueprint $table) {
+        Schema::create( 'activities', function ( Blueprint $table ) {
+
             $table->bigIncrements('id');
             $table->unsignedInteger( 'project_id' );
+
+            // 'morphs' is identical to the following two lines..
+            $table->nullableMorphs( 'subject' );
+            // $table->unsignedInteger( 'subject_id' );
+            // $table->string( 'subject_type' );
+
             $table->string( 'description' );
             $table->timestamps();
 

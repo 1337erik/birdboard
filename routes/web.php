@@ -1,5 +1,24 @@
 <?php
 
+// model lifecycle hooks accessed from within the router.. this is ugly.. please dont do this..
+// \App\Project::created( function( $project ){
+
+//     \App\Activity::create([
+
+//         'project_id' => $project->id,
+//         'description' => 'created'
+//     ]);
+// });
+
+// \App\Project::updated( function( $project ){
+
+//     \App\Activity::create([
+
+//         'project_id' => $project->id,
+//         'description' => 'updated'
+//     ]);
+// });
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes

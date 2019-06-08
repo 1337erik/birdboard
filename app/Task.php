@@ -31,25 +31,26 @@ class Task extends Model
 
     //         $task->project->recordActivity( 'deleted_task' );
     //     });
-    //     // static::updated( function( $task ){
 
-    //         // if( !$task->completed ) return;
-    //         // $task->project->recordActivity( 'completed_task' );
-    //     // });
+    //     static::updated( function( $task ){
+
+    //         if( !$task->completed ) return;
+    //         $task->project->recordActivity( 'completed_task' );
+    //     });
     // }
 
     public function complete()
     {
 
         $this->update([ 'completed' => true ]);
-        $this->project->recordActivity( 'completed_task' );
+        $this->recordActivity( 'completed_task' );
     }
 
     public function incomplete()
     {
 
         $this->update([ 'completed' => false ]);
-        $this->project->recordActivity( 'incompleted_task' );
+        $this->recordActivity( 'incompleted_task' );
     }
 
     public function project()
@@ -62,5 +63,21 @@ class Task extends Model
     {
 
         return '/projects/' . $this->project->id . '/tasks/' . $this->id;
+    }
+
+    public function activity()
+    {
+
+        return $this->morphMany( Activity::class, 'subject' )->latest();
+    }
+
+    public function recordActivity( $description )
+    {
+
+        $this->activity()->create([
+
+            'project_id'  => $this->project->id,
+            'description' => $description
+        ]);
     }
 }

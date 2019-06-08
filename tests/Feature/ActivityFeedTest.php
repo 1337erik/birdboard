@@ -6,6 +6,7 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Facades\Tests\Setup\ProjectFactory;
+use App\Task;
 
 class ActivityFeedTest extends TestCase
 {
@@ -48,7 +49,14 @@ class ActivityFeedTest extends TestCase
         $project->addTask( 'some task' );
 
         $this->assertCount( 2, $project->activity );
-        $this->assertEquals( $project->activity->last()->description, 'created_task' );
+
+        tap( $project->activity->last(), function( $activity ){
+
+            // dd( $activity->toArray() );
+            $this->assertEquals( $activity->description, 'created_task' );
+            $this->assertEquals( $activity->subject->body, 'some task' );
+            $this->assertInstanceOf( Task::class, $activity->subject );
+        });
     }
 
     /**
@@ -67,7 +75,14 @@ class ActivityFeedTest extends TestCase
         ]);
 
         $this->assertCount( 3, $project->activity );
-        $this->assertEquals( $project->activity->last()->description, 'completed_task' );
+
+        tap( $project->activity->last(), function( $activity ){
+
+            // dd( $activity->toArray() );
+            $this->assertEquals( $activity->description, 'completed_task' );
+            $this->assertEquals( $activity->subject->body, 'foobar' );
+            $this->assertInstanceOf( Task::class, $activity->subject );
+        });
     }
 
     /**
