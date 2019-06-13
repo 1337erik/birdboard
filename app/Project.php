@@ -8,6 +8,8 @@ class Project extends Model
 {
     protected $guarded = [];
 
+    public $old = [];
+
     public function path()
     {
 
@@ -23,7 +25,15 @@ class Project extends Model
     public function recordActivity( $description )
     {
 
-        $this->activity()->create([ 'description' => $description ]);
+        $this->activity()->create([
+
+            'description' => $description,
+            'changes'     => [
+
+                'before' => array_diff( $this->old, $this->getAttributes() ),
+                'after'  => array_diff( $this->getAttributes(), $this->old )
+            ]
+        ]);
     }
  
     public function owner()

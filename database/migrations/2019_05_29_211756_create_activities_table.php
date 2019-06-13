@@ -23,6 +23,8 @@ class CreateActivitiesTable extends Migration
             // $table->unsignedInteger( 'subject_id' );
             // $table->string( 'subject_type' );
 
+            $table->text( 'changes' )->nullable();
+
             $table->string( 'description' );
             $table->timestamps();
 
